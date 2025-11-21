@@ -8,8 +8,8 @@ import java.util.Map;
  * This class generates a statement for a given invoice of performances.
  */
 public class StatementPrinter {
-    public Invoice invoice;
-    public Map<String, Play> plays;
+    private final Invoice invoice;
+    private final Map<String, Play> plays;
 
     public StatementPrinter(Invoice invoice, Map<String, Play> plays) {
         this.invoice = invoice;
@@ -21,29 +21,21 @@ public class StatementPrinter {
      * @return the formatted statement
      * @throws RuntimeException if one of the play types is not known
      */
+    @SuppressWarnings("checkstyle:LineLength")
     public String statement() {
-        int totalAmount = 0;
-        int volumeCredits = 0;
         StringBuilder result = new StringBuilder(
                 "Statement for " + invoice.getCustomer() + System.lineSeparator()
         );
-
         for (Performance performance : invoice.getPerformances()) {
-            int amount = getAmount(performance);
-            volumeCredits += getVolumeCredits(performance);
-
-            // Task 2.3: use new usd(...) helper
             result.append(String.format(
                     "  %s: %s (%d seats)%n",
                     getPlay(performance).getName(),
-                    usd(amount),
+                    usd(getAmount(performance)),
                     performance.getAudience()
             ));
-            totalAmount += amount;
         }
-
-        result.append(String.format("Amount owed is %s%n", usd(totalAmount)));
-        result.append(String.format("You earned %d credits%n", volumeCredits));
+        result.append(String.format("Amount owed is %s%n", usd(getTotalAmount())));
+        result.append(String.format("You earned %d credits%n", getTotalVolumeCredits()));
         return result.toString();
     }
 
@@ -52,7 +44,6 @@ public class StatementPrinter {
     }
 
     private int getAmount(Performance performance) {
-        /* same as before… */
         int amount = 0;
         switch (getPlay(performance).getType()) {
             case "tragedy":
@@ -84,7 +75,6 @@ public class StatementPrinter {
     }
 
     private int getVolumeCredits(Performance performance) {
-        /* same as before… */
         int result = 0;
         result += Math.max(
                 performance.getAudience() - Constants.BASE_VOLUME_CREDIT_THRESHOLD,
@@ -97,10 +87,25 @@ public class StatementPrinter {
         return result;
     }
 
-    // Task 2.3: Extracted helper for US-dollar formatting
     private String usd(int amount) {
         return NumberFormat
                 .getCurrencyInstance(Locale.US)
                 .format(amount / Constants.PERCENT_FACTOR);
+    }
+
+    private int getTotalAmount() {
+        int result = 0;
+        for (Performance performance : invoice.getPerformances()) {
+            result += getAmount(performance);
+        }
+        return result;
+    }
+
+    private int getTotalVolumeCredits() {
+        int result = 0;
+        for (Performance performance : invoice.getPerformances()) {
+            result += getVolumeCredits(performance);
+        }
+        return result;
     }
 }
