@@ -27,28 +27,22 @@ public class StatementPrinter {
         StringBuilder result = new StringBuilder(
                 "Statement for " + invoice.getCustomer() + System.lineSeparator()
         );
-        final NumberFormat frmt =
-                NumberFormat.getCurrencyInstance(Locale.US);
 
         for (Performance performance : invoice.getPerformances()) {
             int amount = getAmount(performance);
-
-            // Task 2.2: delegate volume-credit calc
             volumeCredits += getVolumeCredits(performance);
 
+            // Task 2.3: use new usd(...) helper
             result.append(String.format(
                     "  %s: %s (%d seats)%n",
                     getPlay(performance).getName(),
-                    frmt.format(amount / Constants.PERCENT_FACTOR),
+                    usd(amount),
                     performance.getAudience()
             ));
             totalAmount += amount;
         }
 
-        result.append(String.format(
-                "Amount owed is %s%n",
-                frmt.format(totalAmount / Constants.PERCENT_FACTOR)
-        ));
+        result.append(String.format("Amount owed is %s%n", usd(totalAmount)));
         result.append(String.format("You earned %d credits%n", volumeCredits));
         return result.toString();
     }
@@ -58,6 +52,7 @@ public class StatementPrinter {
     }
 
     private int getAmount(Performance performance) {
+        /* same as before… */
         int amount = 0;
         switch (getPlay(performance).getType()) {
             case "tragedy":
@@ -88,8 +83,8 @@ public class StatementPrinter {
         return amount;
     }
 
-    // Task 2.2: extracted from statement() loop
     private int getVolumeCredits(Performance performance) {
+        /* same as before… */
         int result = 0;
         result += Math.max(
                 performance.getAudience() - Constants.BASE_VOLUME_CREDIT_THRESHOLD,
@@ -100,5 +95,12 @@ public class StatementPrinter {
                     / Constants.COMEDY_EXTRA_VOLUME_FACTOR;
         }
         return result;
+    }
+
+    // Task 2.3: Extracted helper for US-dollar formatting
+    private String usd(int amount) {
+        return NumberFormat
+                .getCurrencyInstance(Locale.US)
+                .format(amount / Constants.PERCENT_FACTOR);
     }
 }
