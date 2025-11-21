@@ -21,9 +21,8 @@ public class StatementPrinter {
      * @return the formatted statement
      * @throws RuntimeException if one of the play types is not known
      */
-    @SuppressWarnings("checkstyle:LineLength")
     public String statement() {
-        StringBuilder result = new StringBuilder(
+        final StringBuilder result = new StringBuilder(
                 "Statement for " + invoice.getCustomer() + System.lineSeparator()
         );
         for (Performance performance : invoice.getPerformances()) {

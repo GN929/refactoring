@@ -1,5 +1,10 @@
 package theater;
 
+/**
+ * Represents a theatrical play.
+ * @author GN929
+ */
+
 public class Play {
 
     private final String name;
